@@ -49,7 +49,7 @@ module ActiveFedora
       attrs = {} if attrs.nil?
       @association_cache = {}
       attributes = attrs.dup
-      @inner_object = UnsavedDigitalObject.new(self.class, attributes.delete(:namespace), attributes.delete(:pid))
+      @inner_object = ActiveFedora.unsaved_digital_object_class.new(self.class, attributes.delete(:namespace), attributes.delete(:pid))
       self.relationships_loaded = true
       load_datastreams
 
@@ -240,7 +240,7 @@ module ActiveFedora
 
 
     def pretty_pid
-      if self.pid == UnsavedDigitalObject::PLACEHOLDER
+      if self.pid == ActiveFedora.unsaved_digital_object_class::PLACEHOLDER
         nil
       else
         self.pid
@@ -289,7 +289,7 @@ module ActiveFedora
     # This method returns a new object of the same class, with the internal SolrDigitalObject
     # replaced with an actual DigitalObject.
     def reify
-      if self.inner_object.is_a? DigitalObject
+      if self.inner_object.is_a? ActiveFedora.digital_object_class
         raise "#{self.inspect} is already a full digital object"
       end
       self.class.find self.pid
@@ -299,10 +299,10 @@ module ActiveFedora
     # This method reinitializes a lightweight, loaded-from-solr object with an actual
     # DigitalObject inside.
     def reify!
-      if self.inner_object.is_a? DigitalObject
+      if self.inner_object.is_a? ActiveFedora.digital_object_class
         raise "#{self.inspect} is already a full digital object"
       end
-      self.init_with DigitalObject.find(self.class,self.pid)
+      self.init_with ActiveFedora.digital_object_class.find(self.class,self.pid)
     end
     
     def self.pids_from_uris(uris) 

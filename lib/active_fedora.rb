@@ -13,6 +13,18 @@ SOLR_DOCUMENT_ID = Solrizer.default_field_mapper.id_field unless defined?(SOLR_D
 ENABLE_SOLR_UPDATES = true unless defined?(ENABLE_SOLR_UPDATES)
 
 module ActiveFedora #:nodoc:
+  class << self
+    attr_writer :unsaved_digital_object_class
+    attr_writer :digital_object_class
+
+    def unsaved_digital_object_class
+      @unsaved_digital_object_class || UnsavedDigitalObject
+    end
+
+    def digital_object_class
+      @digital_object_class || DigitalObject
+    end
+  end
   extend ActiveSupport::Autoload
 
   class ObjectNotFoundError < RuntimeError; end # :nodoc:

@@ -78,7 +78,7 @@ module ActiveFedora
     # @return[boolean]
     def exists?(pid)
       return false if pid.nil? || pid.empty?
-      !!DigitalObject.find(self, pid)
+      !!ActiveFedora.digital_object_class.find(self, pid)
     rescue ActiveFedora::ObjectNotFoundError
       false
     end
@@ -113,7 +113,7 @@ module ActiveFedora
     #   Book.find_one("hydra:dataset1") 
     def find_one(pid, cast=nil)
       cast = true if self == ActiveFedora::Base && cast.nil?
-      inner = DigitalObject.find(self, pid)
+      inner = ActiveFedora.digital_object_class.find(self, pid)
       af_base = self.allocate.init_with(inner)
       cast ? af_base.adapt_to_cmodel : af_base
     end
