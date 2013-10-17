@@ -24,7 +24,6 @@ module ActiveFedora
 
       def cleanup!
         solr = ActiveFedora::SolrService.instance.conn
-        solr = ActiveFedora::SolrService.instance.conn
         solr.delete_by_query("*:*", params: {commit: true})
         solr.commit
         @object_cache = {}
@@ -33,6 +32,14 @@ module ActiveFedora
   class UnsavedDigitalObject < ActiveFedora::UnsavedDigitalObject
   end
   class DigitalObject < ActiveFedora::DigitalObject
+    module PersistedDatastreamObject
+      def versions
+        [self]
+      end
+      def versionID
+        "#{dsid}.0"
+      end
+    end
     module PersistedObject
       def new?
         false
@@ -73,6 +80,9 @@ module ActiveFedora
     def save
       self.extend(PersistedObject)
       ActiveFedora::InMemory.object_cache[pid] = self
+      self.datastreams.each_pair do |k,v|
+        v.extend(PersistedDatastreamObject)
+      end
       true
     end
 

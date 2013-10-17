@@ -144,6 +144,8 @@ module ActiveFedora
         end
       end
 
+      delegate :select, :empty?, to: :load_target
+
       # Removes +records+ from this association calling +before_remove+ and
       # +after_remove+ callbacks.
       #
