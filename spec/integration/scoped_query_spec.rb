@@ -20,6 +20,9 @@ describe "scoped queries" do
         end
       
       end
+      class Parent < ActiveFedora::Base
+        has_many :items, property: :has_member, class_name: "ModelIntegrationSpec::Basic"
+      end
     end
 
   end
@@ -59,12 +62,14 @@ describe "scoped queries" do
     let!(:test_instance1) { ModelIntegrationSpec::Basic.create!(:foo=>'Beta', :bar=>'Chips')}
     let!(:test_instance2) { ModelIntegrationSpec::Basic.create!(:foo=>'Alpha', :bar=>'Peanuts')}
     let!(:test_instance3) { ModelIntegrationSpec::Basic.create!(:foo=>'Sigma', :bar=>'Peanuts')}
+    let!(:parent) { ModelIntegrationSpec::Parent.create!(items: [test_instance1, test_instance2, test_instance3])}
 
     describe "when the objects are in fedora" do
       after do
         test_instance1.delete
         test_instance2.delete
         test_instance3.delete
+        parent.delete
       end
       it "should query" do
         ModelIntegrationSpec::Basic.where(ActiveFedora::SolrService.solr_name('foo', type: :string)=> 'Beta').should == [test_instance1]
@@ -96,6 +101,10 @@ describe "scoped queries" do
       it "calling first should not affect the relation's ability to get all results later" do
         relation = ModelIntegrationSpec::Basic.where(ActiveFedora::SolrService.solr_name('bar', type: :string) => 'Peanuts')
         expect {relation.first}.not_to change {relation.to_a.size}
+      end
+
+      it "should chain relations to associations" do
+        parent.items.where(ActiveFedora::SolrService.solr_name('bar', type: :string) => 'Peanuts').count.should == 2
       end
 
       it "calling where should not affect the relation's ability to get all results later" do

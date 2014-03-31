@@ -51,17 +51,15 @@ module ActiveFedora
     end
 
     def to_a
-      return @records if loaded?
-      args = @klass == ActiveFedora::Base ? {:cast=>true} : {}
-      args[:rows] = limit_value if limit_value
-      args[:sort] = order_values if order_values
-      
-      @records = to_enum(:find_each, where_values, args).to_a
-      @loaded = true
-
+      load
       @records
     end
 
+    def load
+      exec_queries unless loaded?
+
+      self
+    end
 
     def ==(other)
       case other
@@ -120,6 +118,17 @@ module ActiveFedora
 
 
     private
+
+    def exec_queries
+      args = @klass == ActiveFedora::Base ? {:cast=>true} : {}
+      args[:rows] = limit_value if limit_value
+      args[:sort] = order_values if order_values
+      
+      @records = to_enum(:find_each, where_values, args).to_a
+      @loaded = true
+
+      @records
+    end
 
     VALID_FIND_OPTIONS = [:order, :limit, :conditions, :cast]
     

@@ -837,6 +837,12 @@ module ActiveFedora
         @association
       end
 
+      # Returns a <tt>Relation</tt> object for the records in this association
+      def scope
+        @association.scope
+      end
+      alias spawn scope
+ 
       def to_ary
         load_target.dup
       end
