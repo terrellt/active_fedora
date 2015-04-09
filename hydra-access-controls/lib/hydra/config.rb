@@ -11,6 +11,8 @@ module Hydra
           self.permissions = value
         when :user_model
           self.user_model = value
+        when :id_to_resource_uri
+          self.id_to_resource_uri = value
         else
           raise "Unknown key"
       end
@@ -22,13 +24,19 @@ module Hydra
           permissions
         when :user_model
           user_model
+        when :id_to_resource_uri
+          id_to_resource_uri
         else
           raise "Unknown key #{key}"
       end
     end
 
     attr_reader :permissions
-    attr_accessor :user_model
+    attr_accessor :user_model, :id_to_resource_uri
+
+    def id_to_resource_uri
+      @id_to_resource_uri ||= lambda { |id| ActiveFedora::Base.id_to_uri(id) }
+    end
 
     def permissions= values
       @permissions.merge! values
