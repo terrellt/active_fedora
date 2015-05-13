@@ -30,6 +30,7 @@ module ActiveFedora
     autoload :ContainsAssociation,            'active_fedora/associations/contains_association'
     autoload :DeleteProxy,            'active_fedora/associations/delete_proxy'
     autoload :RecordProxyFinder,      'active_fedora/associations/record_proxy_finder'
+    autoload :CompositeProxy,         'active_fedora/associations/composite_proxy'
 
     module Builder
       autoload :Association,             'active_fedora/associations/builder/association'
