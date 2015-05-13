@@ -1,40 +1,31 @@
-class CompositeProxy
-  attr_reader :ids, :factory
-  def initialize(ids:, factory:)
-    @ids = IDComposite.new(ids, factory.translate_uri_to_id)
-    @factory = factory
-  end
-
-  def each
-    ids.each do |id|
-      yield factory.find(id)
-    end
-  end
-
-  def delete
-    self.each(&:delete)
-  end
-
-  class IDComposite
-    attr_reader :ids, :id_translator
-    def initialize(ids, id_translator)
-      @ids = ids
-      @id_translator = id_translator
+module ActiveFedora::Associations
+  class CompositeProxy
+    attr_reader :proxies
+    def initialize(proxies:)
+      @proxies = proxies
     end
 
     def each
-      ids.each do |id|
-        yield convert(id)
+      proxies.each do |proxy|
+        yield proxy
       end
     end
 
-    private
+    def delete
+      self.each(&:delete)
+    end
+    class Factory
+      attr_reader :base_factory
+      delegate :translate_uri_to_id, to: :base_factory
+      def initialize(factory:)
+        @base_factory = factory
+      end
 
-    def convert(id)
-      if id.start_with?("http")
-        id_translator.call(id)
-      else
-        id
+      def find(ids)
+        proxies = ids.map do |id|
+          base_factory.find(id)
+        end
+        CompositeProxy.new(proxies: proxies)
       end
     end
   end
